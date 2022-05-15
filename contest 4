@@ -1,0 +1,28 @@
+    public static String absResult(float realPartC, float imagPartC) {
+        double a = 0.00d;
+        double b = 0.00d;
+        double abs = 0.000d;
+        
+        
+        for(int i = 0; i < 5; i++){    
+           double temp = a;   
+           a = a * a - b * b + realPartC;
+           b = 2 * temp * b + imagPartC; 
+            
+            abs = absoluteVal(a, b);
+           // System.out.println(a + " " + b + " " + abs);
+             if(abs > 4){
+                 int counter = i + 1;
+                 return "ESCAPES " + counter;
+             }
+        }
+        
+        return String.format("%.3f", abs);
+        
+    }
+    
+    public static double absoluteVal(double real, double imag){   
+        return Math.sqrt(real * real + imag * imag);
+    }
+
+}
