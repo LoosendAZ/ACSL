@@ -1,0 +1,90 @@
+import java.io.*;
+import java.math.*;
+import java.security.*;
+import java.text.*;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.function.*;
+import java.util.regex.*;
+import java.util.stream.*;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
+
+
+
+class Result {
+
+    /*
+     * Complete the 'listByValue' function below.
+     *
+     * The function is expected to return a STRING.
+     * The function accepts STRING input as parameter.
+     */
+
+    public static String listByValue(String input) {
+        String result = "";
+
+        char[] s = input.toCharArray(); //use regular array to find length
+        List<Character> letters = new ArrayList<>(); //array for the letters
+        List<Integer> values = new ArrayList<>(); //array for the numbers that we will order for the final result
+        letters.add(s[0]);
+        values.add(0);
+        
+        for(int i = 1; i < s.length; i++){
+            char c = s[i];
+            int dest = -1;
+            for(int x = 0; x < letters.size(); x++){
+                if(c <= letters.get(x)){
+                   dest = x;
+                   letters.add(dest, c);
+                   if(dest == 0){
+                       int firstValue = values.get(0);
+                       values.add(0, firstValue + 1); //put letter in right spot
+                   } 
+                   else{
+                       int before = values.get(dest-1);
+                       int after = values.get(dest);
+                       int max = Math.max(before, after); //find the greater number before and after, add one to it and put into values and put in right spot
+                       values.add(dest, max + 1);
+                   }
+                   break; 
+                }
+            }
+            if(dest == -1){ //when there is no number after the last
+                letters.add(c);
+                int lastIndex = values.size() - 1;
+                int lastValue = values.get(lastIndex);
+                values.add(lastValue + 1);
+            } 
+        }
+        for(int z = 0; z < letters.size(); z++){ //order the numbers and move the letters in correspondence
+            for(int v = 0; v < values.size(); v++){
+                if(values.get(v) ==z){
+                    result += letters.get(v).toString();
+                }
+            }
+        }
+        
+        System.out.println(letters);
+        System.out.println(values);
+        return result;
+    }
+
+}
+
+public class Solution {
+    public static void main(String[] args) throws IOException {
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(System.getenv("OUTPUT_PATH")));
+
+        String input = bufferedReader.readLine();
+
+        String result = Result.listByValue(input);
+
+        bufferedWriter.write(result);
+        bufferedWriter.newLine();
+
+        bufferedReader.close();
+        bufferedWriter.close();
+    }
+}
