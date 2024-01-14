@@ -1,0 +1,162 @@
+import java.io.*;
+
+import java.math.*;
+import java.security.*;
+import java.text.*;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.function.*;
+import java.util.regex.*;
+import java.util.stream.*;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
+
+import java.util.ArrayList;
+import java.util.Collections;
+class Result {
+
+    /*
+     * Complete the 'findDiscardSum' function below.
+     *
+     * The function is expected to return an INTEGER.
+     * The function accepts following parameters:
+     *  1. INTEGER originalRows
+     *  2. STRING tiles
+     */
+
+    public static int findDiscardSum(int originalRows, String tiles) {
+        int result = 0;
+        List<Integer> rows = sep(originalRows);
+        List<String> atiles = parseString(tiles);
+        
+        int prev = -1;
+        
+        //Run through all tiles
+        for(int i = 0; i < atiles.size(); i++){
+            int first = atiles.get(i).charAt(0) - '0';
+            int sec = atiles.get(i).charAt(1) - '0';
+            System.out.println(String.format("i = %d: first = %d, sec = %d, prev = %d", i, first, sec, prev));
+            
+            boolean added = false;
+            for(int j = 0; j < rows.size(); j++){
+                System.out.println(String.format("    j = %d rows[%d] = %d", j, j, rows.get(j)));
+                if(first == rows.get(j) && sec != rows.get(j)){
+                    // Only first digit matches
+                    if(prev == j) continue;
+                    
+                    rows.set(j, sec);
+                    System.out.println(String.format("        Added %d%d", first, sec));
+                    prev = j;
+                    added = true;
+                    break;
+                } else if (sec == rows.get(j) && first != rows.get(j)) {
+                    // Only second digit matches
+                    if(prev == j) continue;
+                    
+                    rows.set(j, first);
+                    System.out.println(String.format("        Added %d%d", sec, first));
+                    prev = j;
+                    added = true;
+                    break;
+                } else if (first == rows.get(j) && sec == rows.get(j) ) {
+                    // Double logic - both first and second match
+                    int k = i + 1;
+                    boolean jRestart = false;
+                    System.out.println(String.format("        Double %d%d", first, sec));
+                    
+                    // Loop from next tile and on 
+                    for(; k < atiles.size(); k++){
+                        first = atiles.get(k).charAt(0) - '0';
+                        sec = atiles.get(k).charAt(1) - '0';
+                        System.out.println(String.format("            Double - current %d%d", first, sec));
+                        if(first == sec && first == rows.get(j)){
+                            continue;
+                        }
+                        if(first != rows.get(j) && sec != rows.get(j)){
+                            System.out.println(String.format("                Double - discard %d%d", first, sec));
+                            result += (first + sec);
+                            added = true;
+                            continue;
+                        }
+                        if(first == rows.get(j)){
+                            rows.set(j, sec);
+                            added = true;
+                            System.out.println(String.format("                Double - added %d%d", first, sec));
+                            i = k;
+                            jRestart = true;
+                            prev = j;
+                            break;   
+                        } 
+                        if(sec == rows.get(j)){
+                            rows.set(j, first);
+                            added = true;
+                            System.out.println(String.format("                Double - added %d%d", sec, first));
+                            i = k;
+                            jRestart = true;
+                            prev = j;
+                            break;   
+                        } 
+                    }  
+                     
+                
+                    if(jRestart){ 
+                        prev = -1;                    
+                        break;
+                    }
+                } else {
+                    // Not matching current row, continue to next row
+                    prev = -1;
+                    continue;
+                }
+            }
+            
+            if(!added){
+                result += (first + sec); 
+                System.out.println(String.format("            Discarded %d%d", first, sec));
+            }
+            
+             //prev = -1;
+        }
+        
+        return result;
+    }    
+    
+    //Turn string into starting row numbers
+    private static List<Integer> sep(int a) {
+        ArrayList<Integer> result = new ArrayList<>();
+        do {
+            int r = a % 10;
+            result.add(r);
+            a = a/10;
+        } while(a > 0);
+        
+        Collections.reverse(result);
+        return result;
+    }
+    
+    //Turn list of tiles into String ArrayList
+    private static List<String> parseString(String parse) {
+        List<String> myList = Arrays.asList(parse.split(" "));
+        return myList;
+    }
+    
+
+}
+public class Solution {
+    public static void main(String[] args) throws IOException {
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(System.getenv("OUTPUT_PATH")));
+
+        int originalRows = Integer.parseInt(bufferedReader.readLine().trim());
+
+        String tiles = bufferedReader.readLine();
+
+        int result = Result.findDiscardSum(originalRows, tiles);
+
+        bufferedWriter.write(String.valueOf(result));
+        bufferedWriter.newLine();
+
+        bufferedReader.close();
+        bufferedWriter.close();
+    }
+}
