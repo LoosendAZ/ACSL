@@ -1,0 +1,196 @@
+import java.io.*;
+import java.math.*;
+import java.security.*;
+import java.text.*;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.function.*;
+import java.util.regex.*;
+import java.util.stream.*;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
+
+
+
+import java.util.ArrayList;
+class Result {
+
+    /*
+     * Complete the 'decodeMessage' function below.
+     *
+     * The function is expected to return a STRING.
+     * The function accepts following parameters:
+     *  1. STRING text
+     *  2. STRING message
+     */
+
+    public static String decodeMessage(String text, String message) {
+        String rat = "";
+        
+        // Separate input text into sentences, by "." "!" "?"
+        List<String> sepText = sentenceSeparator(text);
+        System.out.println("Sentences: ");
+        for(int i = 0; i < sepText.size(); i++) {
+            System.out.println("    " + i + ": " + sepText.get(i));
+        }
+        
+        // Separate message by " "
+        List<String> sepMess = messSeparator(message);
+        
+        //loop through until each n.n.n is used
+        for(String m : sepMess){
+            System.out.println("Current message: "  + m);
+            List<Integer> sent = sentenceSeparatorBUTFORSMALLERPERIODS(m);
+            int sentpos = sent.get(0)-1;
+            int wordpos = sent.get(1)-1;
+            int charpos = sent.get(2)-1;
+            
+            // Current sentence
+            if(sentpos >= sepText.size()) {
+                // What happens if sentence position is out of bound?  
+                rat += " ";
+                continue; 
+                         
+            }
+            String s = sepText.get(sentpos);
+            System.out.println("Current sentence s: " + s);
+            
+            // Current list of words from current sentence
+            List<String> Words = sentanceSeparator(s);
+            System.out.println("Words " + Words);
+            
+            // Current word
+            if(wordpos >= Words.size()) {
+                // What happens if word position is out of bound?
+                rat += " ";
+                continue;
+            }
+            String w = Words.get(wordpos);
+            System.out.println("Current word w: " + w);
+            
+            // w = strap(w);
+            // System.out.println("strapped current w: " + w);
+            
+            // Current character
+            if(charpos >= w.length()) {
+                // What happens if character position is out of bound?
+                rat += " ";
+                continue;            
+            }
+            char c = (w.toCharArray())[charpos];
+            System.out.println(c);
+            rat += c;  
+        }
+
+        System.out.println(rat);
+        return rat;  
+        
+    }
+    
+    // Strip non-alphanumerical letters from a given string
+    // INPUT: 
+    // OUTPUT: 
+    public static String strap(String w){
+        return w.replaceAll("[^a-zA-Z0-9]", "");
+    }
+    
+    // Separate a passage into sentences by ., !, ?
+    // return list of sentences
+    // INPUT:passage (string)
+    // OUTPUT: Arraylist (string)
+    public static List<String> sentenceSeparator(String text){
+        String[] strSplit = text.split("\\.|\\?|\\!"); 
+        ArrayList<String> strList = new ArrayList<String>(Arrays.asList(strSplit)); 
+        return strList;
+    }
+    
+    // Separate triple number directions by period
+    // INPUT: String
+    // OUTPUT: Integer Arraylist
+    public static List<Integer> sentenceSeparatorBUTFORSMALLERPERIODS(String text){
+        String[] strSplit = text.split("\\.");
+        Integer[] intSplit = new Integer[strSplit.length];
+        for(int i = 0; i < strSplit.length; i++){
+            intSplit[i] = Integer.parseInt(strSplit[i]);            
+        } 
+        ArrayList<Integer> intList = new ArrayList<Integer>(Arrays.asList(intSplit)); 
+        return intList;
+    }
+    
+    // for 3.5.1, 8.21.9, list
+    public static List<String> messSeparator(String text){
+        String[] strSplit = text.split(" "); 
+        ArrayList<String> strList = new ArrayList<String>(Arrays.asList(strSplit)); 
+        return strList;
+    }
+    
+    // finds the specific digit that we want and adds it to the final string
+    // INPUT: string
+    // OUTPUT: charlist
+    public static List<String> sentanceSeparator(String text){
+        List<String> result = new ArrayList<>();
+        char[] ctext = text.toCharArray();
+        int start = 0;
+        for(int i = 0; i < ctext.length; i++){
+            //1. advance start pointer to Alphanumeric. set end = start 
+            while(start < ctext.length && !isAlphaNumeric(ctext[start])){
+                start++;
+                i++;
+            }
+            //2. If start is at the end, break
+            if(start == ctext.length){
+                break;
+            }
+            //3. Advance endpointer until a non-alphanumeric character is met
+            //Extract substring word, reset start to end + 1.
+            int end = start;
+            boolean isLower = (ctext[i] >= 'a' && ctext[i] <= 'z');
+            boolean isUpper = (ctext[i] >= 'A' && ctext[i] <= 'Z');
+            boolean isDigit = (ctext[i] >= '0' && ctext[i] <= '9');
+            if (!isLower && !isUpper && !isDigit) {
+                end = i;
+                String currentWord = text.substring(start, end);
+                result.add(currentWord);
+                start = end + 1;
+            }
+            //4. Check end of sentence and alphanumeric
+            //extract the last word if the sentence does not end with non-alphanumeric
+            if (i == ctext.length - 1) {
+                String currentWord = text.substring(start);
+                result.add(currentWord);
+            }
+        }
+        
+        return result;
+    }
+    
+    // Checks if a selected digit is alphanumeric or not
+    // INPUT: char
+    // OUTPUT: boolean value t/f;
+    public static boolean isAlphaNumeric(char c){
+        boolean isLower = (c >= 'a' && c <= 'z');
+        boolean isUpper = (c >= 'A' && c <= 'Z');
+        boolean isDigit = (c >= '0' && c <= '9');
+        return isLower || isUpper || isDigit;    
+            
+    }
+
+}
+public class Solution {
+    public static void main(String[] args) throws IOException {
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(System.getenv("OUTPUT_PATH")));
+
+        String text = bufferedReader.readLine();
+
+        String message = bufferedReader.readLine();
+
+        String result = Result.decodeMessage(text, message);
+
+        bufferedWriter.write(result);
+        bufferedWriter.newLine();
+
+        bufferedReader.close();
+        bufferedWriter.close();
+    }
+}
