@@ -1,0 +1,249 @@
+import java.io.*;
+import java.math.*;
+import java.security.*;
+import java.text.*;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.function.*;
+import java.util.regex.*;
+import java.util.stream.*;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
+
+
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.ArrayList;
+class Result {
+
+    /*
+     * Complete the 'playRackO' function below.
+     *
+     * The function is expected to return an INTEGER.
+     * The function accepts following parameters:
+     *  1. STRING info
+     *  2. STRING rack
+     *  3. STRING pile
+     */
+
+    public static int playRackO(String info, String rack, String pile) {
+        if(rack == null || rack.length() == 0){
+            return 0;
+        }
+        
+        String[] racker = rack.split(" ");
+        int[] racks = intonater(racker);
+        
+        if(pile == null || pile.length() == 0){
+            return score(racks);
+        }
+        String[] piler = pile.split(" ");
+        Queue<Integer> piles = toQ(piler);
+        
+        if(win(racks)){
+            System.out.println("we got the goods! " + Arrays.toString(racks));
+            return score(racks); 
+        }
+        while(!piles.isEmpty()){
+            int draw = piles.remove();
+            // Card has been drawn, run through rules 1-6 IN ORDER
+            boolean yn1 = R1(racks, draw);
+            if(yn1 == true){
+                continue;
+            }
+            
+            // Check if won yet
+            if(win(racks)){
+                System.out.println("we got the goods! " + Arrays.toString(racks));
+                return score(racks); 
+            }
+            
+            boolean yn2 = R2(racks, draw);
+            if(yn2 == true){
+                continue;
+            }
+            
+            // Check if won yet
+            if(win(racks)){
+                System.out.println("we got the goods! " + Arrays.toString(racks));
+                return score(racks); 
+            }
+            
+            boolean yn3 = R3(racks, draw);
+            if(yn3 == true){
+                continue;
+            }
+            
+            // Check if won yet
+            if(win(racks)){
+                System.out.println("we got the goods! " + Arrays.toString(racks));
+                return score(racks); 
+            }
+            
+            boolean yn4 = R4(racks, draw);
+            if(yn4 == true){
+                continue;
+            }
+            
+            // Check if won yet
+            if(win(racks)){
+                System.out.println("we got the goods! " + Arrays.toString(racks));
+                return score(racks); 
+            }
+            
+            boolean yn5 = R5(racks, draw);
+            if(yn5 == true){
+                continue;
+            }
+            
+            // Check if won yet
+            if(win(racks)){
+                System.out.println("we got the goods! " + Arrays.toString(racks));
+                return score(racks); 
+            }
+        }
+        System.out.println("we got the goods! " + Arrays.toString(racks));
+        return score(racks); 
+        
+        
+    
+    }
+    // Rule number 1
+    public static Boolean R1(int[] racks, int draw){
+        for(int i = 1; i < racks.length; i++){
+            if(draw + 1 == racks[i]){
+                racks[i - 1] = draw;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Rule number 2
+    public static Boolean R2(int[] racks, int draw){
+        for(int i = 0; i < racks.length - 1; i++){
+            if(draw - 1 == racks[i]){
+                racks[i + 1] = draw;
+                return true;
+            }
+        }
+        return false;
+    }
+    // Rule number 3
+    public static Boolean R3(int[] racks, int draw){
+        for(int i = 1; i < racks.length - 1; i++){
+            if(!(racks[i] > racks[i-1] && racks[i] < racks[i+1])){
+                if(draw > racks[i-1] && draw < racks[i+1]){
+                    racks[i] = draw;
+                    return true;
+                }
+                
+            }
+        }
+        return false;
+    }
+    // Rule number 4
+    public static Boolean R4(int[] racks, int draw){
+        if(draw < racks[1] && racks[0] > racks[1]){
+            racks[0] = draw;
+            return true;
+        }
+        return false;
+    }
+    
+    // Rule number 5
+    public static Boolean R5(int[] racks, int draw){
+        if(draw > racks[racks.length - 2] && racks[racks.length - 1] < racks[racks.length - 2]){
+            racks[racks.length - 1] = draw;
+            return true;
+        }
+        return false;
+    }
+    
+    // Change string array into integer array 
+    public static int[] intonater(String[] input){
+        int[] funk = new int[input.length];
+        for(int i = 0; i < input.length; i++){
+            int transferz = Integer.parseInt(input[i]);
+            funk[i] = transferz;
+        }
+        return funk;
+    }
+    
+    // Change string array into Integer Queue
+    public static Queue<Integer> toQ(String[] racker){
+        Queue<Integer> queue = new LinkedList<>();
+        for(int i = 0; i < racker.length; i++){
+            int transferz = Integer.parseInt(racker[i]);
+            queue.add(transferz);
+        }
+        return queue;
+    }
+    
+    // Constant check on if the winning scenario has been achieved
+    public static Boolean win(int[] racks){
+        for(int i = 1; i < racks.length; i++){
+            if(racks[i - 1] > racks[i]){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // Get the Score
+    public static Integer score(int[] racks){
+        // Get number non bonused
+        int number = 0;
+        // Check if the rack has any step downs
+        for(int i = 1; i < racks.length; i++){
+            if(racks[i] < racks[i - 1]){
+                number -= 1;
+            }
+        }
+        if(number < 0){
+            return number;
+        }
+        
+        for(int i = 0; i < racks.length; i++){
+            number += racks[i];
+        }
+        // Get the bonuses
+        for(int i = 0; i < racks.length - 1; i++){
+            int x = i;
+            int y = x + 1;
+            while(racks[y] == racks[x] + 1){
+                x = y;
+                y++;
+                if(y == racks.length){
+                    break;
+                }
+            }
+            if(y - i >= 3){
+                number += 5 * (y - i);
+            }
+            i = x;  
+        }
+        return number;
+    }
+}
+
+public class Solution {
+    public static void main(String[] args) throws IOException {
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(System.getenv("OUTPUT_PATH")));
+
+        String info = bufferedReader.readLine();
+
+        String rack = bufferedReader.readLine();
+
+        String pile = bufferedReader.readLine();
+
+        int result = Result.playRackO(info, rack, pile);
+
+        bufferedWriter.write(String.valueOf(result));
+        bufferedWriter.newLine();
+
+        bufferedReader.close();
+        bufferedWriter.close();
+    }
+}
