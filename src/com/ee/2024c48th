@@ -1,0 +1,184 @@
+//the test cases and instructions are in a word document on onedrive called ACSL 2024 8th c4 program
+import java.io.*;
+
+import java.math.*;
+import java.security.*;
+import java.text.*;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.function.*;
+import java.util.regex.*;
+import java.util.stream.*;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
+
+import static java.lang.Math.*;
+
+class Result {
+    
+    /*
+     * Complete the 'play2248' function below.
+     *
+     * The function is expected to return a STRING.
+     * The function accepts STRING boardValues as parameter.
+     */
+    
+
+    
+    public static String play2248(String boardValues) {
+        String[] racker = boardValues.split(" ");
+        int[] racks = intonater(racker);
+        int board[][] = onetotwo(racks, 8, 5);
+        System.out.println(Arrays.deepToString(board));
+        
+        // Algorithm to search around a number for the same or double of that number
+        int c = 0;
+        
+        System.out.println(Arrays.deepToString(board));
+        for (int col = 0; col < 5; col++) {
+            applyGravity(board);
+            for (int row = 1; row < 8; row++) {
+                applyGravity(board);
+                if (board[row][col] != 0) {
+                    applyGravity(board);
+                    // Check for tiles above that can merge
+                    for (int r = row - 1; r >= 0; r--) {
+                        applyGravity(board);
+                        if (board[r][col] != 0) {
+                            // Tile found above, check diagonally for more matches
+                            int rr = r;
+                            int cc = col - 1;
+                            boolean found = false;
+                            while (cc >= 0 && rr >= 0 && !found) {
+                                if (board[rr][cc] != 0) {
+                                    if (board[rr][cc] == board[row][col] || board[rr][cc] == board[r][col]) {
+                                        // Combine tiles
+                                        board[row][col] += board[rr][cc];
+                                        board[rr][cc] = 0;
+                                        found = true;
+                                        applyGravity(board);
+                                    } else {
+                                        applyGravity(board);
+                                        // Stop checking diagonals if different value found
+                                        break;
+                                    }
+                                }
+                                rr--;
+                                cc--;
+                            }
+                            if (!found) {
+                                applyGravity(board);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    // After merging, apply gravity
+        /*
+        for(int i=0; i < 5; i++){
+            // check if is first number in row or column and calculate
+            if(i == 0 ^ c == 0){
+                if(rat[i][c] == rat[i + 1][c] ^ rat[i][c] == rat[i][c + 1] ^ rat[i][c] == rat[i + 1][c + 1]){
+                    boolean skiptwo = true;
+                    
+                }
+            }
+            //rest of calculate
+            
+        }
+        */
+        applyGravity(board);
+        String rat = Arrays.deepToString(board).replace(",", "");
+        String rats = rat.replace("]", "");
+        String ratss = rats.replace("[", "");
+        System.out.println(ratss);
+        
+        return ratss;
+    
+    
+    }
+    public static int[][] applyGravity(int board[][]) {
+    // Apply gravity by shifting non-zero elements down
+        for (int col = 0; col < 5; col++) {
+            int shiftIndex = 8 - 1;
+            for (int row = 8 - 1; row >= 0; row--) {
+                if (board[row][col] != 0) {
+                    if (shiftIndex != row) {
+                        board[shiftIndex][col] = board[row][col];
+                        board[row][col] = 0;
+                    }
+                    shiftIndex--;
+                }
+            }
+        }
+        return board;
+    }   
+    
+    
+    // Algorithm to push objects with nothing under to the bottom
+    
+    // turn int[] into 2d 5 x 8 array
+    public static int[][] onetotwo(final int[] array, final int rows, final int cols ) {
+        if (array.length != (rows*cols))
+            throw new IllegalArgumentException("Invalid array length");
+
+        int[][] bidi = new int[rows][cols];
+        for ( int i = 0; i < rows; i++ )
+            System.arraycopy(array, (i*cols), bidi[i], 0, cols);
+
+        return bidi;
+    }
+    
+    // Function that rounds a number to the nearest power of 2
+    public static int roundertwo(int tre){
+        double tret = (double) tre;
+        double rat = Math.floor(log(tre));
+        double otherat = Math.ceil(log(tre));
+        System.out.print(rat);
+        System.out.print(otherat);
+        int or = (int)(otherat);
+        int ore = (int)(rat);
+        if(tret - rat > tret - otherat){
+            return or;
+        }
+        if(tret - rat < tret - otherat){
+            return ore;
+        }
+        return 0;
+    }
+    // Separator
+    public static int[] intonater(String[] input){
+        int[] funk = new int[input.length];
+        for(int i = 0; i < input.length; i++){
+            int transferz = Integer.parseInt(input[i]);
+            funk[i] = transferz;
+        }
+        return funk;
+    }
+    
+
+    
+    
+    
+}
+
+
+
+public class Solution {
+    public static void main(String[] args) throws IOException {
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(System.getenv("OUTPUT_PATH")));
+
+        String boardValues = bufferedReader.readLine();
+
+        String result = Result.play2248(boardValues);
+
+        bufferedWriter.write(result);
+        bufferedWriter.newLine();
+
+        bufferedReader.close();
+        bufferedWriter.close();
+    }
+}
