@@ -1,0 +1,116 @@
+import java.io.*;
+import java.math.*;
+import java.security.*;
+import java.text.*;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.function.*;
+import java.util.regex.*;
+import java.util.stream.*;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
+
+
+
+import java.util.*;
+class Result {
+
+    /*
+     * Complete the 'wordSearch' function below.
+     *
+     * The function is expected to return a STRING.
+     * The function accepts following parameters:
+     *  1. STRING rows_cols
+     *  2. STRING gridLetters
+     *  3. STRING words
+     */
+
+    public static String wordSearch(String rows_cols, String gridLetters, String words) {
+        //parse
+        String[] dimes = rows_cols.split(" ");
+        int rows = Integer.parseInt(dimes[0]);
+        int cols = Integer.parseInt(dimes[1]);
+        char[][] grid = new char[rows][cols];
+        
+        //fill grid
+        for(int i = 0; i < rows; i++){
+            for(int ie = 0; ie < cols; ie++){
+                grid[i][ie] = gridLetters.charAt(i * cols + ie);
+            }
+        }
+        //split words and make bool for used positions log
+        String[] wordList = words.split(" ");
+        boolean[][] used = new boolean[rows][cols];
+        
+        //search for each word
+        for(String word : wordList){
+            findWordInGrid(grid, word, used);
+        }
+        //collect leftover letters
+        StringBuilder unusedLetters = new StringBuilder();
+        for(int i = 0; i < rows; i++){
+            for(int j = 0; j < cols; j++){
+                if(!used[i][j]){
+                    unusedLetters.append(grid[i][j]);
+                }
+            }
+        }
+        return unusedLetters.toString();
+    
+    }
+    
+    public static boolean findWordInGrid(char[][] grid, String word, boolean[][] used){
+        int rows = grid.length;
+        int cols = grid[0].length;
+        int wordLen = word.length();
+        int[] rowDirections = {-1, -1, -1, 0, 0, 1, 1, 1};
+        int[] colDirections = {-1, 0, 1, -1, 1, -1, 0, 1};
+        
+        for(int r = 0; r < rows; r++){
+            for(int c = 0; c < cols; c++){
+                for(int d = 0; d < 8; d++){
+                    int newRow = r, newCol = c, pos;
+                    for(pos = 0; pos < wordLen; pos++){
+                        if(newRow < 0 || newRow >=rows || newCol < 0 || newCol >= cols || grid[newRow][newCol] != word.charAt(pos)){
+                            break;
+                        }
+                        newRow+= rowDirections[d];
+                        newCol+= colDirections[d];
+                    }
+                    if(pos == wordLen){
+                        newRow =r;
+                        newCol = c;
+                        for(pos = 0; pos < wordLen; pos++){
+                            used[newRow][newCol] = true;
+                            newRow+= rowDirections[d];
+                            newCol+= colDirections[d];
+                        }
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+}
+public class Solution {
+    public static void main(String[] args) throws IOException {
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(System.getenv("OUTPUT_PATH")));
+
+        String rows_cols = bufferedReader.readLine();
+
+        String gridLetters = bufferedReader.readLine();
+
+        String words = bufferedReader.readLine();
+
+        String result = Result.wordSearch(rows_cols, gridLetters, words);
+
+        bufferedWriter.write(result);
+        bufferedWriter.newLine();
+
+        bufferedReader.close();
+        bufferedWriter.close();
+    }
+}
