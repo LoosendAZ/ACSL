@@ -1,0 +1,158 @@
+import java.io.*;
+import java.math.*;
+import java.security.*;
+import java.text.*;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.function.*;
+import java.util.regex.*;
+import java.util.stream.*;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
+
+
+
+import java.util.*;
+class Result {
+
+    /*
+     * Complete the 'playCards' function below.
+     *
+     * The function is expected to return a STRING.
+     * The function accepts following parameters:
+     *  1. INTEGER players
+     *  2. STRING_ARRAY cards
+     */
+
+    public static String playCards(int players, List<String> cards) {
+        // Parse the input cards string
+        List<List<String>> playerCards = new ArrayList<>();
+        for (int i = 0; i < players; i++) {
+            playerCards.add(new ArrayList<>());
+        }
+        
+        // Convert the string to a character array for processing
+        char[] cardArray = cards.stream().collect(Collectors.joining()).toCharArray();   
+        int totalCards = cardArray.length / 2; // Each card is represented by 2 characters
+        for (int i = 0; i < totalCards; i++) {
+            String card = "" + cardArray[2 * i] + cardArray[2 * i + 1];
+            playerCards.get(i % players).add(card);
+        }
+        
+        List<Integer> finishedOrder = new ArrayList<>();
+        boolean[] finished = new boolean[players];
+        int finishedCount = 0;
+        int currentPlayer = 0;
+        
+        while (finishedCount < players - 1) {
+            boolean anyDiscarded = false;
+            boolean[] discardedInRound = new boolean[players];
+            
+            // Each player attempts to discard in the current round
+            for (int i = 0; i < players; i++) {
+                currentPlayer = (currentPlayer + i) % players;
+                if (!finished[currentPlayer]) {
+                    if (discardPairs(playerCards.get(currentPlayer))) {
+                        anyDiscarded = true;
+                        discardedInRound[currentPlayer] = true;
+                    } else {
+                        discardedInRound[currentPlayer] = false;
+                    }
+                }
+            }
+            
+            // Check if any player discarded in this round
+            if (!anyDiscarded) {
+                currentPlayer = (currentPlayer + 1) % players;
+                while (finished[currentPlayer]) {
+                    currentPlayer = (currentPlayer + 1) % players;
+                }
+            }
+            
+            // Check if any player has finished discarding all cards
+            for (int i = 0; i < players; i++) {
+                if (!finished[i] && playerCards.get(i).isEmpty()) {
+                    finishedOrder.add(i + 1);
+                    finished[i] = true;
+                    finishedCount++;
+                }
+            }
+        }
+        
+        // Add the last player who hasn't finished
+        for (int i = 0; i < players; i++) {
+            if (!finished[i]) {
+                finishedOrder.add(i + 1);
+                break;
+            }
+        }
+        
+        // Convert the finished order to the required output format
+        StringBuilder result = new StringBuilder();
+        for (int player : finishedOrder) {
+            result.append(player).append(" ");
+        }
+        return result.toString().trim();
+    }
+    
+    public static boolean discardPairs(List<String> cards){
+        Map<String, Integer> cardCount = new HashMap<>();
+        for(String card : cards){
+            String rank = card.substring(0, card.length() - 1);
+            cardCount.put(rank, cardCount.getOrDefault(rank, 0) + 1);
+        }
+        List<String> pairsToRemove = new ArrayList<>();
+        for(Map.Entry<String, Integer> entry : cardCount.entrySet()){
+            if(entry.getValue() >= 2){
+                pairsToRemove.add(entry.getKey());
+            }
+        }
+        if (pairsToRemove.isEmpty()) {
+            return false;
+        }
+        
+        for (String rank : pairsToRemove) {
+            cards.remove(rank + "C");
+            cards.remove(rank + "D");
+            cards.remove(rank + "H");
+            cards.remove(rank + "S");
+        }
+        return true;
+        
+    } 
+    
+        
+}
+    
+        
+    
+    
+
+
+public class Solution {
+    public static void main(String[] args) throws IOException {
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(System.getenv("OUTPUT_PATH")));
+
+        int players = Integer.parseInt(bufferedReader.readLine().trim());
+
+        int cardsCount = Integer.parseInt(bufferedReader.readLine().trim());
+
+        List<String> cards = IntStream.range(0, cardsCount).mapToObj(i -> {
+            try {
+                return bufferedReader.readLine();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        })
+            .collect(toList());
+
+        String result = Result.playCards(players, cards);
+
+        bufferedWriter.write(result);
+        bufferedWriter.newLine();
+
+        bufferedReader.close();
+        bufferedWriter.close();
+    }
+}
