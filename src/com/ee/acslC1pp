@@ -1,0 +1,157 @@
+import java.io.*;
+import java.lang.reflect.Array;
+import java.math.*;
+import java.security.*;
+import java.text.*;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.function.*;
+import java.util.regex.*;
+import java.util.stream.*;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
+import java.util.Arrays;
+
+
+
+class Result {
+
+    /*
+     * Complete the 'findCreature' function below.
+     *
+     * The function is expected to return a STRING.
+     * The function accepts following parameters:
+     *  1. STRING guess
+     *  2. STRING distance
+     */
+
+    public static String findCreature(String guess, String distance) {
+        //find all possible guesses, specifically the furthest and closest and then convert back to hexadecimal
+        /*
+        logic wooooo
+        done - split guess into a string array and reverse later on ( just incase there is some weird long guess list) <nvm lmfao theres integer.toHexString>
+        
+        done - turn everything into decimal, distance and guess
+        done - separate rows and collumns
+        done - set smallest and biggest variables
+        
+        done - create big board, 16 by 16, 2d array or stacked for loops that iterate each box by row then collumn or smthn <for loops is way more efficient i think>
+        done - use sum of vert and horiz distance as a value because another array list or 2 variables makes this too complicated
+        done - if it's the smallest one save it
+        done - if it's the biggest one save it
+        
+        done - change the saves min and max hex vals back to hex <dont forget to add a    0 for 1 digit numbers. (from 00 to FF inclusive)>
+        done - return the numbas with spaces in between
+        */
+        
+        
+        //convert everything into decimal for easier work\
+        //convert guess
+        String[] ogguess = guess.split(" ");
+        ogguess = hexToDecbacktostring(ogguess);
+        
+        //separate the row and collumns for later use
+        char[] coordsGuess = separateCoord(guess);
+        int rowguess = Integer.parseInt("" + coordsGuess[0], 16);
+        int colguess = Integer.parseInt("" + coordsGuess[1], 16);
+        
+        //convert distance to dec
+        int ogdistance = (Integer.parseInt(distance, 16));
+        
+        
+        
+        int smallest = Integer.MAX_VALUE;
+        int biggest = Integer.MIN_VALUE;
+        //create the board, go through each box
+        //dimension 1 rows
+        for (int r = 0; r < 16; r++){
+            //dimension 2 collumns
+            for(int y = 0; y < 16; y++){
+                // create a absolute value of the difference of vertical and horizontal distance from their respective dimensions 
+                int dist = Math.abs(r - rowguess) + Math.abs(y - colguess);
+                //if the specific square is the correct distance from the original guess, 
+                if (dist == ogdistance) { 
+                    
+                    // convert row, collumn pos into one number, x16 moves to row, +y moves to collumn
+                    int valcell = r * 16 + y;
+                    // if pos value is smaller than current smallest, make this the new smallest
+                    if(valcell < smallest){
+                        smallest = valcell;
+                    } 
+                    // if pos value is bigger than current biggeest, make this the new smallest
+                    if(valcell > biggest) {
+                        biggest = valcell;
+                    }
+                }
+                
+            }
+        }
+        
+        // convert smallest and biggest to hex and string, in uppercase
+        String minhx = Integer.toHexString(smallest).toUpperCase();
+        String maxhx = Integer.toHexString(biggest).toUpperCase();
+        
+        // if the hex is 1 digit, add a 0 in front
+        if(minhx.length() == 1){
+            minhx = "0" + minhx;
+        }
+        if(maxhx.length() == 1){
+            maxhx = "0" + minhx;
+        }
+        else{
+            return minhx + " " + maxhx;
+        }
+        return minhx + " " + maxhx;
+    }
+    
+    public static char[] separateCoord(String coordinate) {
+        
+        char[] coords = coordinate.toCharArray();
+        return coords;
+    }
+    
+    public static String[] hexToDecbacktostring(String[] possibleCells) { 
+        //get length of array
+        int l = possibleCells.length;
+        //run through each array term
+        for(int i = 0; i < l; i++){
+            //get current hex value
+            String hexa = (possibleCells[i].trim());
+            //replace it with the decimal value
+            possibleCells[i] = Integer.toString(Integer.parseInt(hexa, 16));
+        }
+        return possibleCells;
+    }
+    public static String[] decToHexstring(String[] possibleCells){
+        //get length of array
+        int l = possibleCells.length;
+        //run through each term
+        for(int i = 0; i < l; i++){
+            //get current dec value
+            String dec = possibleCells[i].trim();
+            //replace it w/ decimal value
+            possibleCells[i] = Integer.toHexString(Integer.parseInt(dec));
+        }
+        return possibleCells;
+    }
+
+}
+
+public class Solution {
+    public static void main(String[] args) throws IOException {
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(System.getenv("OUTPUT_PATH")));
+
+        String guess = bufferedReader.readLine();
+
+        String distance = bufferedReader.readLine();
+
+        String result = Result.findCreature(guess, distance);
+
+        bufferedWriter.write(result);
+        bufferedWriter.newLine();
+
+        bufferedReader.close();
+        bufferedWriter.close();
+    }
+}
