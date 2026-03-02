@@ -1,0 +1,289 @@
+import java.io.*;
+import java.math.*;
+import java.security.*;
+import java.text.*;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.function.*;
+import java.util.regex.*;
+import java.util.stream.*;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
+
+
+class Result{
+
+    /*
+     * Complete the 'verifyPlate' function below.
+     *
+     * The function is expected to return a STRING.
+     * The function accepts STRING plate as parameter.
+     */
+
+    public static String verifyPlate(String plate) {
+
+        if((plate).length() == 7){
+            for(int i = 0; i < plate.length(); i++){
+                if(plate.charAt(i) == '-'){
+                    return g6(plate);
+                }
+            }
+            
+            return g7(plate);
+        }
+        else if((plate).length() == 6){
+            return g6(plate);
+        }
+        else if(plate.length() == 8){
+            return g7(plate);
+        }
+        
+        else{
+            return vanity(plate);
+        }
+    }
+    public static String g6(String input){
+        int letters = 0;
+        int numbers = 0;
+        int dashes = 0;
+        char[] list = input.toCharArray();
+        for(int i = 0; i < input.length(); i++){
+            char c = input.charAt(i);
+            if(Character.isLetter(c)){
+                letters = letters + 1;
+            } 
+            else if(Character.isDigit(c)){
+                numbers = numbers + 1;
+            }
+            else if (c== '-'){
+                dashes = dashes + 1;
+            }
+        }
+        //g6A
+        if(numbers == 6){
+            return "G6A";
+        }
+        //g6b
+        else if(letters == 4 && numbers == 2 && dashes == 1){
+            if(Character.isLetter(list[0]) && Character.isLetter(list[1]) && Character.isLetter(list[2])){
+                int ltn = 0;
+                int ltl = 0;
+                int other = 0;
+                for(int i = 4; i < 7; i++){
+                    char m = input.charAt(i);
+                    if(Character.isLetter(m)){
+                        ltl = ltl + 1;
+                    } 
+                    else if(Character.isDigit(m)){
+                        ltn = ltn + 1;
+                    }
+                    else if (m == '-'){
+                        other = other + 1;
+                    }
+                }
+                if(ltn == 2 && ltl == 1){
+                    return "G6B";
+                }
+            }
+        }
+        //g6c
+        else if(letters == 3 && numbers == 3 && dashes == 1){
+            if(Character.isLetter(list[0]) && Character.isLetter(list[1]) && Character.isLetter(list[2])){
+                if(list[3] == '-' && Character.isDigit(list[4]) && Character.isDigit(list[5]) && Character.isDigit(list[6])){
+                    return "G6C";
+                }
+            }
+            else if(Character.isDigit(list[0]) && Character.isDigit(list[1]) && Character.isDigit(list[2])){
+                if(list[3] == '-' && Character.isLetter(list[4]) && Character.isLetter(list[5]) && Character.isLetter(list[6])){
+                    return "G6D";
+                }
+            }
+        }
+        
+        return vanity(input);
+
+    }
+    
+    
+    public static String g7(String input){
+        int letters = 0;
+        int numbers = 0;
+        int dashes = 0;
+        char[] list = input.toCharArray();
+        for(int i = 0; i < input.length(); i++){
+            char c = input.charAt(i);
+            if(Character.isLetter(c)){
+                letters = letters + 1;
+            } 
+            else if(Character.isDigit(c)){
+                numbers = numbers + 1;
+            }
+            else if (c== '-'){
+                dashes = dashes + 1;
+            }
+        }
+        //g7A
+        if(numbers == 7){
+            return "G7A";
+        }
+        //g7b
+        if(letters == 4 && numbers == 3 && dashes == 1){
+            int letter = 0;
+            int number = 0;
+            for(int i = 0; i < 3; i++){
+                char c = input.charAt(i);
+                if(Character.isLetter(c)){
+                    letter = letter + 1;
+                } 
+                else if(Character.isDigit(c)){
+                    number = number + 1;
+                }
+            }
+            
+            if(letter == 3){ 
+                int l = 0;
+                int n = 0;
+                for(int i = 4; i < 8; i++){
+                    char c = input.charAt(i);
+                    if(Character.isLetter(c)){
+                        l = l + 1;
+                    } 
+                    else if(Character.isDigit(c)){
+                        n = n + 1;
+                    }
+
+                }
+                if(l == 1 && n == 3){
+                    return "G7B";
+                }
+                
+            }  
+        }
+        //G7C
+        else if(letters == 3 && numbers == 4){
+            int letter = 0;
+            int number = 0;
+            for(int i = 0; i < 4; i++){
+                char c = input.charAt(i);
+                if(Character.isLetter(c)){
+                    letter = letter + 1;
+                } 
+                else if(Character.isDigit(c)){
+                    number = number + 1;
+                }
+            }
+            if(number == 4){
+                int lettere = 0;
+                int numbere = 0;
+                for(int i = 4; i < 7; i++){
+                    char c = input.charAt(i);
+                    if(Character.isLetter(c)){
+                        lettere = lettere + 1;
+                    } 
+                    else if(Character.isDigit(c)){
+                        numbere = numbere + 1;
+                    }
+                }
+                if(lettere == 3){
+                    return "G7C";
+                }
+            }
+            else if(letter == 3){
+                int lettere = 0;
+                int numbere = 0;
+                for(int i = 3; i < 7; i++){
+                    char c = input.charAt(i);
+                    if(Character.isLetter(c)){
+                        lettere = lettere + 1;
+                    } 
+                    else if(Character.isDigit(c)){
+                        numbere = numbere + 1;
+                    }
+                }
+                if(numbere == 4){
+                    return "G7D";
+                }
+            }
+            else{
+                return "G7F";
+            }
+        }
+        //G7E
+        else if(letters == 2 && numbers == 5){
+            int lettere = 0;
+            int numbere = 0;
+            for(int i = 0; i < 2; i++){
+                char c = input.charAt(i);
+                if(Character.isLetter(c)){
+                    lettere = lettere + 1;
+                } 
+                else if(Character.isDigit(c)){
+                    numbere = numbere + 1;
+                }
+            }
+            if(lettere == 2){
+                int numberes = 0;
+                for(int i = 3; i < 8; i++){
+                    char c = input.charAt(i);
+                    if(Character.isDigit(c)){
+                        numberes = numberes + 1;
+                    } 
+                }
+                if(numberes == 5){
+                    return "G7E";
+                }
+            }
+        }
+        return vanity(input);
+    }
+    public static String vanity(String input){
+        char[] list = input.toCharArray();
+        int l = 0;
+        int space = 0;
+        int n = 0;
+        for(int i = 0; i < input.length(); i++){
+            if(Character.isLetter(list[i])){
+                l = l + 1;
+            }
+            else if(Character.isDigit(list[i])){
+                n = n + 1;
+            }
+            else if(list[i] == ' ' || list[i] == '-'){
+                space = space + 1;
+            }
+        }
+        if(l + n <= 7){
+            if(space == 1){
+                int co = 0;
+                for(int i = 0; i < 2; i++){
+                    if(Character.isLetter(list[i])){
+                        co = co + 1;
+                    }
+                }
+                if(co >= 2){
+                    return "V";
+                }
+            }
+        }
+        
+        
+        
+        return "IV";
+    }
+}
+public class Solution {
+    public static void main(String[] args) throws IOException {
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(System.getenv("OUTPUT_PATH")));
+
+        String plate = bufferedReader.readLine();
+
+        String result = Result.verifyPlate(plate);
+
+        bufferedWriter.write(result);
+        bufferedWriter.newLine();
+
+        bufferedReader.close();
+        bufferedWriter.close();
+    }
+}
